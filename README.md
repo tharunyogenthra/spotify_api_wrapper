@@ -10,3 +10,15 @@ source [venv]/bin/activate
 pip3 freeze --local > requirements.txt
 
 deactivate
+
+# What i want to add
+
+TopTracks [time period]
+TopArtist [time period] 
+TopGenres
+Song Stats
+Recommendations
+Favourite tracks
+Wrapped
+Time period [decade-]
+Total time [S H D]
