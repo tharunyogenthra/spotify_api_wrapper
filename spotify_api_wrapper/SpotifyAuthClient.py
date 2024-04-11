@@ -154,3 +154,5 @@ class SpotifyAuthClient:
             if 'expires_in' in token_info:
                 expires_in = token_info['expires_in']
                 self.refresh_token_expiry = datetime.now() + timedelta(seconds=expires_in)
+        else:
+            print("Token is not expired")
