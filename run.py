@@ -1,8 +1,13 @@
 from spotify_api_wrapper import SpotifyAPIWrapper
 
-sp = SpotifyAPIWrapper()
-sp.authentication()
-sp.authentication()
+CLIENT_ID = "1830a9413e1d490f947ee1b6f14ee403"
+REDIRECT_URL = "http://localhost:8888/callback"
+USER_ID = '31qxnttkgyllhr4jassvn3pdzj6q'
 
-playlists = sp.get_user_playlists()
-search_results = sp.search_tracks("artist:Radiohead")
+sp = SpotifyAPIWrapper(client_id=CLIENT_ID, redirect_url=REDIRECT_URL)
+sp.authentication(scope=['playlist-read-private', 'playlist-read-collaborative']) # add cache
+
+playlists = sp.get_user_playlists(user_id=USER_ID, limit=50, offset=3) # add user_id (limited use), limit, offset
+
+for i in range(0, len(playlists)):
+    print(playlists.items[i].name)
