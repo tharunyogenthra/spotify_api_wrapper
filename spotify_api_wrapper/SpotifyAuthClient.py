@@ -5,7 +5,6 @@ import requests
 from urllib.parse import urlencode
 import webbrowser
 from datetime import datetime, timedelta
-from .Config import SPOTIFY_CLIENT_ID, SPOTIFY_REDIRECT_URI
 from .SpotifyApiException import SpotifyApiException
 
 class SpotifyAuthClient:
@@ -19,7 +18,7 @@ class SpotifyAuthClient:
         refresh_token_expiry (datetime): The expiration time of the refresh token.
     """
 
-    def __init__(self, client_id=SPOTIFY_CLIENT_ID, redirect_uri=SPOTIFY_REDIRECT_URI):
+    def __init__(self, client_id, redirect_uri):
         """
         Initializes the SpotifyAuthClient with the provided client ID and redirect URI.
 
@@ -31,6 +30,7 @@ class SpotifyAuthClient:
         self.redirect_uri = redirect_uri
         self.refresh_token = None
         self.refresh_token_expiry = None
+        self.access_token = None
 
     def check_if_refresh_expired(self):
         """
@@ -60,6 +60,16 @@ class SpotifyAuthClient:
             datetime: The expiration time of the refresh token.
         """
         return self.refresh_token_expiry
+    
+    @property
+    def get_access_token(self):
+        """
+        Returns the expiration time of the refresh token.
+
+        Returns:
+            datetime: The expiration time of the refresh token.
+        """
+        return self.access_token
 
     def generate_random_string(self, length=32):
         """
@@ -88,7 +98,7 @@ class SpotifyAuthClient:
         code_challenge = base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode()).digest()).decode().rstrip('=')
         return code_verifier, code_challenge
 
-    def authentication(self, scope='user-library-read'):
+    def authentication(self, scope):
         """
         Performs the Spotify authentication flow and retrieves the refresh token.
 
@@ -96,7 +106,7 @@ class SpotifyAuthClient:
             scope (str, optional): The scope of permissions to request from the user. Defaults to 'user-library-read'.
         """
         if self.get_refresh_token is not None:
-            raise SpotifyApiException("No need to authenticate")
+            raise SpotifyApiException("No need to authenticate again")
 
         # Generate the PKCE code verifier and challenge
         code_verifier, code_challenge = self.generate_pkce()
@@ -109,9 +119,10 @@ class SpotifyAuthClient:
             'redirect_uri': self.redirect_uri,
             'code_challenge_method': 'S256',
             'code_challenge': code_challenge,
-            'scope': scope
+            'scope': (" ").join(scope)
         }
         auth_url_with_params = auth_url + '?' + urlencode(auth_params)
+        # print(auth_url_with_params)
         webbrowser.open(auth_url_with_params)
 
         # Get the authorization code from the redirected URL
@@ -129,7 +140,9 @@ class SpotifyAuthClient:
         }
         token_response = requests.post(token_url, data=token_params)
         token_info = token_response.json()
-
+        
+        # print(token_response, token_info)
+        self.access_token = token_info.get('access_token')
         self.refresh_token = token_info.get('refresh_token')
         if 'expires_in' in token_info:
             expires_in = token_info['expires_in']

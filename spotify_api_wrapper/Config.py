@@ -1,2 +1,0 @@
-SPOTIFY_CLIENT_ID = "1830a9413e1d490f947ee1b6f14ee403"
-SPOTIFY_REDIRECT_URI = "http://localhost:8888/callback"
