@@ -6,7 +6,13 @@ from urllib.parse import urlencode
 import webbrowser
 from datetime import datetime, timedelta
 from .SpotifyApiException import SpotifyApiException
+import json
 
+# {"SPOTIFY_CLIENT_ID" : "1830a9413e1d490f947ee1b6f14ee403", "SPOTIFY_REDIRECT_URI" : "http://localhost:8888/callback"}
+
+with open('spotify_api_wrapper/config.json', 'r') as f:
+    config = json.load(f)
+    
 class SpotifyAuthClient:
     """
     Handles Spotify authentication and token management.
@@ -31,6 +37,12 @@ class SpotifyAuthClient:
         self.refresh_token = None
         self.refresh_token_expiry = None
         self.access_token = None
+        
+        config["SPOTIFY_CLIENT_ID"] = client_id
+        config["SPOTIFY_REDIRECT_URI"] = redirect_uri
+        
+        with open('spotify_api_wrapper/config.json', 'w') as f:
+            json.dump(config, f)
 
     def check_if_refresh_expired(self):
         """
@@ -105,9 +117,20 @@ class SpotifyAuthClient:
         Args:
             scope (str, optional): The scope of permissions to request from the user. Defaults to 'user-library-read'.
         """
-        if self.get_refresh_token is not None:
-            raise SpotifyApiException("No need to authenticate again")
-
+        if (config["REFRESH_TOKEN_EXPIRY"] != ''):
+            self.refresh_token_expiry = datetime.strptime(config["REFRESH_TOKEN_EXPIRY"], '%Y-%m-%dT%H:%M:%S.%f')
+            if (self.check_if_refresh_expired() == True):
+                self.refresh_access_token_func()
+            
+            self.client_id = config["SPOTIFY_CLIENT_ID"]
+            self.redirect_uri = config["SPOTIFY_REDIRECT_URI"]
+            self.refresh_token = config["REFRESH_TOKEN"]
+            self.access_token = config["ACCESS_TOKEN"]
+            
+            print("\nAuthentication is successful!!\n")
+            return;
+            
+                
         # Generate the PKCE code verifier and challenge
         code_verifier, code_challenge = self.generate_pkce()
 
@@ -147,25 +170,42 @@ class SpotifyAuthClient:
         if 'expires_in' in token_info:
             expires_in = token_info['expires_in']
             self.refresh_token_expiry = datetime.now() + timedelta(seconds=expires_in)
+            
+        config["REFRESH_TOKEN"] = self.refresh_token
+        config["REFRESH_TOKEN_EXPIRY"] = self.refresh_token_expiry.isoformat()
+        config["ACCESS_TOKEN"] = self.access_token
+        
+        with open('spotify_api_wrapper/config.json', 'w') as f:
+            json.dump(config, f)
 
         print("\nAuthentication is successful!!\n")
 
-    def refresh_access_token(self):
+    def refresh_access_token_func(self):
         """
         Refreshes the access token using the stored refresh token.
         """
-        if self.refresh_token and self.refresh_token_expiry and self.check_if_refresh_expired():
-            token_url = 'https://accounts.spotify.com/api/token'
-            token_params = {
-                'client_id': self.client_id,
-                'grant_type': 'refresh_token',
-                'refresh_token': self.refresh_token
-            }
-            token_response = requests.post(token_url, data=token_params)
-            token_info = token_response.json()
-            self.refresh_token = token_info.get('refresh_token', self.refresh_token)
-            if 'expires_in' in token_info:
-                expires_in = token_info['expires_in']
-                self.refresh_token_expiry = datetime.now() + timedelta(seconds=expires_in)
-        else:
-            print("Token is not expired")
+        token_url = 'https://accounts.spotify.com/api/token'
+        token_params = {
+            'client_id': self.client_id,
+            'grant_type': 'refresh_token',
+            'refresh_token': config["REFRESH_TOKEN"]
+        }
+        token_response = requests.post(token_url, data=token_params)
+        token_info = token_response.json()
+        self.refresh_token = token_info.get('refresh_token', self.refresh_token)
+        self.access_token = token_info.get('access_token')
+        self.refresh_token = token_info.get('refresh_token')
+        
+        if 'expires_in' in token_info:
+            expires_in = token_info['expires_in']
+            # print(f'==>{datetime.now() + timedelta(seconds=expires_in)}<==')
+            self.refresh_token_expiry = datetime.now() + timedelta(seconds=expires_in)
+            
+        config["REFRESH_TOKEN"] = self.refresh_token
+        config["REFRESH_TOKEN_EXPIRY"] = self.refresh_token_expiry.isoformat()
+        config["ACCESS_TOKEN"] = self.access_token
+        
+        with open('spotify_api_wrapper/config.json', 'w') as f:
+            json.dump(config, f)
+            
+        
