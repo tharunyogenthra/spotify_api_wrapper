@@ -53,9 +53,10 @@ class Tests(unittest.TestCase):
         sp = SpotifyAPIWrapper(config["SPOTIFY_CLIENT_ID"], config["SPOTIFY_REDIRECT_URI"])
         sp.authentication(scope=['playlist-read-private', 'playlist-read-collaborative'])
         
-        playlist = sp.get_user_playlists(user_id="31qxnttkgyllhr4jassvn3pdzj6q", limit=50)
+        playlist = sp.get_user_playlists(user_id="31qxnttkgyllhr4jassvn3pdzj6q", limit=10)
         self.assertTrue(type(playlist), PlaylistDataClass)
-        self.assertGreater(len(playlist), 10)
+        self.assertEqual(len(playlist), 10)
+        
         
         
         
