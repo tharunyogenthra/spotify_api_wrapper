@@ -15,7 +15,7 @@ class Playlist:
         response = requests.request(method, endpoint, headers=headers, json=body)
         response_status_code = response.status_code        
 
-        if (response_status_code in [401, 403, 429]):
+        if (response_status_code in [400, 401, 403, 404, 429]):
             response_content = response.content
             error_message = json.loads(response_content.decode('utf-8'))['error']['message']
             raise SpotifyApiException(f'ERROR {response.status_code} {error_message}')
