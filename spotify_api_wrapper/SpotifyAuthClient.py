@@ -8,8 +8,6 @@ from datetime import datetime, timedelta
 from .SpotifyApiException import SpotifyApiException
 import json
 
-# {"SPOTIFY_CLIENT_ID" : "1830a9413e1d490f947ee1b6f14ee403", "SPOTIFY_REDIRECT_URI" : "http://localhost:8888/callback"}
-
 with open('spotify_api_wrapper/config.json', 'r') as f:
     config = json.load(f)
     
@@ -117,6 +115,7 @@ class SpotifyAuthClient:
         Args:
             scope (str, optional): The scope of permissions to request from the user. Defaults to 'user-library-read'.
         """
+
         if (config["REFRESH_TOKEN_EXPIRY"] != ''):
             self.refresh_token_expiry = datetime.strptime(config["REFRESH_TOKEN_EXPIRY"], '%Y-%m-%dT%H:%M:%S.%f')
             if (self.check_if_refresh_expired() == True):

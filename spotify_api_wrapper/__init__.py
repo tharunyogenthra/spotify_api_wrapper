@@ -32,6 +32,15 @@ class SpotifyAPIWrapper:
             PlaylistDataClass object containing many SimplifiedPlaylistObject
         """
         return self.api_client.get_user_playlists(user_id, limit, offset)
+    
+    def get_user_tracks(self, url, limit=50, offset=0):
+        """
+        Retrieves the list of the user tracks with a specifed url i.e https://api.spotify.com/v1/playlists/47zRuvzZdm5MojFoL4rkBy/tracks
+
+        Args:
+            url (string): url of the tracks
+        """
+        return self.api_client.get_user_tracks(url, limit, offset)
 
     def search_tracks(self, query):
         """

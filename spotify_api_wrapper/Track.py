@@ -1,9 +1,9 @@
 import requests
 from .SpotifyApiException import SpotifyApiException
 import json
-from .dataclasses.PlaylistDataClass import PlaylistDataClass
+from .dataclasses.TrackDataClass import TrackDataClass
 
-class Playlist:
+class Track:
     def __init__(self, auth_client):
         self.auth_client = auth_client
         
@@ -22,8 +22,9 @@ class Playlist:
         
         return response.json()
         
-    def get_user_playlists(self, user_id, limit, offset):
-        endpoint = f'https://api.spotify.com/v1/users/{user_id}/playlists?limit={limit}&offset={offset}'
+    def get_user_tracks(self, url, limit, offset=0):
+        # 'https://api.spotify.com/v1/playlists/3cEYpjA9oz9GiPac4AsH4n/tracks?limit=10&offset=0'
+        endpoint = f'{url}?limit={limit}&offset={offset}'
 
-        return PlaylistDataClass(self.fetch_web_api(endpoint))
+        return TrackDataClass(self.fetch_web_api(endpoint))
         
