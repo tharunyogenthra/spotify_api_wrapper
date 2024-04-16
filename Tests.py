@@ -10,6 +10,8 @@ with open('config_test.json', 'r') as f:
     config = json.load(f)
 
 class Tests(unittest.TestCase):
+    def tearDown(self):
+        sp = None
     '''
     test SpotifyAuthClient
     '''
@@ -56,9 +58,35 @@ class Tests(unittest.TestCase):
         playlist = sp.get_user_playlists(user_id="31qxnttkgyllhr4jassvn3pdzj6q", limit=10)
         self.assertTrue(type(playlist), PlaylistDataClass)
         self.assertEqual(len(playlist), 10)
+    
+    '''
+    test Tracks
+    '''
         
+    def test_track_valid_return(self):
+        sp = SpotifyAPIWrapper(config["SPOTIFY_CLIENT_ID"], config["SPOTIFY_REDIRECT_URI"])
+        sp.authentication(scope=['playlist-read-private', 'playlist-read-collaborative'])
+        playlist = sp.get_user_playlists(user_id="31qxnttkgyllhr4jassvn3pdzj6q", limit=10)
+        tracks_url = playlist.items[0].tracks["href"]
+        self.assertEqual(len(sp.get_user_tracks(tracks_url, 10).items), 10)
         
+    def test_track_invalid_limit(self):
+        sp = SpotifyAPIWrapper(config["SPOTIFY_CLIENT_ID"], config["SPOTIFY_REDIRECT_URI"])
+        sp.authentication(scope=['playlist-read-private', 'playlist-read-collaborative'])
+        playlist = sp.get_user_playlists(user_id="31qxnttkgyllhr4jassvn3pdzj6q", limit=10)
+        tracks_url = playlist.items[0].tracks["href"]
+        self.assertRaises(SpotifyApiException, lambda: sp.get_user_tracks(tracks_url, 101))
         
+    def test_track_offset_results_in_no_items(self):
+        sp = SpotifyAPIWrapper(config["SPOTIFY_CLIENT_ID"], config["SPOTIFY_REDIRECT_URI"])
+        sp.authentication(scope=['playlist-read-private', 'playlist-read-collaborative'])
+        playlist = sp.get_user_playlists(user_id="31qxnttkgyllhr4jassvn3pdzj6q", limit=10)
+        tracks_url = playlist.items[0].tracks["href"]
+        self.assertEqual(len(sp.get_user_tracks(tracks_url, 50, 1000000).items), 0)
+        
+    
+        
+
         
 if __name__ == '__main__':
     unittest.main()
