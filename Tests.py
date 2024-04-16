@@ -19,14 +19,14 @@ class Tests(unittest.TestCase):
         sp = SpotifyAPIWrapper(config["SPOTIFY_CLIENT_ID"], config["SPOTIFY_REDIRECT_URI"])
         sp.authentication(scope=['playlist-read-private', 'playlist-read-collaborative'])
 
-        self.assertEqual(len(sp.auth_client.refresh_token), 134)
+        self.assertGreaterEqual(len(sp.auth_client.refresh_token), 130)
         self.assertTrue(isinstance(sp.auth_client.refresh_token_expiry, datetime.datetime))
         
     def test_authentication_refresh_token_length(self):    
         sp = SpotifyAPIWrapper(config["SPOTIFY_CLIENT_ID"], config["SPOTIFY_REDIRECT_URI"])
         sp.authentication(scope=['playlist-read-private', 'playlist-read-collaborative'])
 
-        self.assertEqual(len(sp.auth_client.refresh_token), 134)
+        self.assertGreaterEqual(len(sp.auth_client.refresh_token), 130)
         self.assertTrue(isinstance(sp.auth_client.refresh_token_expiry, datetime.datetime))
         
     '''

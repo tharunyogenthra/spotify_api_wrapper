@@ -22,9 +22,12 @@ class Track:
         
         return response.json()
         
-    def get_user_tracks(self, url, limit, offset=0):
+    def get_user_tracks(self, url, limit, offset):
         # 'https://api.spotify.com/v1/playlists/3cEYpjA9oz9GiPac4AsH4n/tracks?limit=10&offset=0'
-        endpoint = f'{url}?limit={limit}&offset={offset}'
+        if ("limit" in url):
+            endpoint = f'{url}'
+        else:
+            endpoint = f'{url}?limit={limit}&offset={offset}'
 
         return TrackDataClass(self.fetch_web_api(endpoint))
         
