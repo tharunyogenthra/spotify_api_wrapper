@@ -12,6 +12,9 @@ class SpotifyAPIClient:
     
     def get_user_tracks(self, url, limit, offset):
         return self.track.get_user_tracks(url, limit, offset)
+    
+    def get_top_tracks(self, type, time_range, limit, offset):
+        return self.track.get_top_tracks(type, time_range, limit, offset)
 
     def search_tracks(self, query):
         print("search_tracks " + query)
