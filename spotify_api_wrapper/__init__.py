@@ -53,3 +53,7 @@ class SpotifyAPIWrapper:
             dict: The search results.
         """
         return self.api_client.search_tracks(query)
+    
+    def get_top_tracks(self, type, time_range, limit, offset):
+        
+        return self.api_client.get_top_tracks(type, time_range="medium_term", limit=50, offset=0)

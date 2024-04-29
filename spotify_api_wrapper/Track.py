@@ -31,3 +31,7 @@ class Track:
 
         return TrackDataClass(self.fetch_web_api(endpoint))
         
+    def get_top_tracks(self, type, time_range, limit, offset):
+        # 'https://api.spotify.com/v1/me/top/artists?time_range=HELLO&limit=HELLO&offset=HELLO'
+        endpoint = f'https://api.spotify.com/v1/me/top/{type}?time_range={time_range}&limit={limit}&offset={offset}'
+        return self.fetch_web_api(endpoint=endpoint)
